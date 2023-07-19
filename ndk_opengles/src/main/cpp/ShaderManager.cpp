@@ -73,3 +73,11 @@ int ShaderManager::init(const char *vShaderStr, const char *fShaderStr) {
     glDeleteProgram(programObj);
     return 0;
 }
+
+void ShaderManager::setViewPortAndUseProgram(GLint width, GLint height, GLbitfield mask) {
+    // 设置视图窗口，仅窗口内的内容会被绘制，窗口外的内容将被抛弃
+    glViewport(0, 0, width, height);
+    // 清除颜色缓冲区
+    glClear(mask);
+    glUseProgram(programObject);
+}

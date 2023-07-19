@@ -21,11 +21,8 @@ void onDraw() {
             -0.5f, -0.5f, 0.0f,
             0.5f, -0.5f, 0.0f
     };
-    // 设置视图窗口，仅窗口内的内容会被绘制，窗口外的内容将被抛弃
-    glViewport(0, 0, eglManager->width, eglManager->height);
-    // 清除颜色缓冲区
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(shaderManager->programObject);
+    shaderManager->setViewPortAndUseProgram(eglManager->width, eglManager->height,
+                                            GL_COLOR_BUFFER_BIT);
 
     //将顶点坐标数组传给着色器，第一个参数是位置，和着色器代码的 layout(location = 0) 对应。
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);

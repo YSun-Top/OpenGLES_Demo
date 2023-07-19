@@ -21,7 +21,6 @@ add_library(
         esShapes.c
         esTransform.c
         esUtil.c
-        LogUtils.cpp
 )
 target_include_directories(opengl_common PRIVATE
         ${ANDROID_NDK}/sources/android/native_app_glue)

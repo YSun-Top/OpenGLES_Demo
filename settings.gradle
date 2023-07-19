@@ -12,7 +12,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
+rootProject.name = "OpenGLES_Demo"
 include ':ndk_opengles'
 include ':java_opengles'
 include ':opengl_common'

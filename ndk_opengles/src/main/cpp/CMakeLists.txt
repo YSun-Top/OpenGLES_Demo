@@ -27,6 +27,7 @@ add_library(
 
         Triangle.cpp
         Triangle_VBO.cpp
+        Texture2D.cpp
 
         test.c
         Main.cpp

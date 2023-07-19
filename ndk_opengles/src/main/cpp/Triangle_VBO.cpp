@@ -31,11 +31,8 @@ void onDraw() {
             0.5f, -0.5f, 0.0f         // v2
     };
 
-    //设置视图窗口，仅窗口内的内容会被绘制，窗口外的内容将被抛弃
-    glViewport(0, 0, eglManager->width, eglManager->height);
-    // 清除颜色缓冲区
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(shaderManager->programObject);
+    shaderManager->setViewPortAndUseProgram(eglManager->width, eglManager->height,
+                                            GL_COLOR_BUFFER_BIT);
 
     //用于分配VBO大小，计算方式：每组数据个数 * 数据类型
     GLint vtxStrides[2] = {

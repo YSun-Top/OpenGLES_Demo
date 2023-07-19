@@ -8,6 +8,6 @@
 #include "LogUtils.h"
 //要跑哪个文件就定义对应的宏
 #define Simple_Texture2D
-#define _Triangle_VBO "_Triangle_VBO"
+#define _Texture2D "_Texture2D"
 
 #endif //LEARNINGPROJECT_DEFAULT_H

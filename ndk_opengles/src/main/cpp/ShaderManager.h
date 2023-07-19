@@ -20,6 +20,13 @@ public:
     void (*shutDownFunc)(void);
 
     GLuint *vboIDs;
+    GLuint textureID;
+
+    //采样器位置
+    GLint samplerLoc;
+    //分别在x和y偏移多少值
+    GLint offset_X_Value;
+    GLint offset_Y_Value;
 
     /**
      * 加载、编译着色器源码，并检查错误。
@@ -36,6 +43,8 @@ public:
      * @return
      */
     int init(const char *vShaderStr, const char *fShaderStr);
+
+    void setViewPortAndUseProgram(GLint width,GLint height,GLbitfield mask);
 
     /**
      * 将顶点数据和缓冲区对象绑定
