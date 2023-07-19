@@ -81,3 +81,54 @@ void ShaderManager::setViewPortAndUseProgram(GLint width, GLint height, GLbitfie
     glClear(mask);
     glUseProgram(programObject);
 }
+
+int ShaderManager::genSphere(int numSlices, float radius, GLfloat **vertices, GLfloat **normals,
+                             GLfloat **texCoords, GLuint **indices) {
+    int numParalles = numSlices / 2;
+//    int numVertices = (numParalles + 1) * (numSlices + 1);
+    int numIndices = numParalles * numSlices * 6;
+
+    float angleStep = (2.0f * 3.1415926);
+
+    if (vertices != nullptr) *vertices = new GLfloat();
+    if (normals != nullptr) *normals = new GLfloat();
+    if (texCoords != nullptr) *texCoords = new GLfloat();
+    if (indices != nullptr) *indices = new GLuint();
+
+    for (int i = 0; i < numParalles + 1; ++i) {
+        for (int j = 0; j < numSlices + 1; ++j) {
+            int vertex = (i * (numSlices + 1) + j) * 3;
+            if (vertices) {
+                (*vertices)[vertex + 0] = radius * sinf(angleStep * i) * sinf(angleStep * j);
+                (*vertices)[vertex + 1] = radius * sinf(angleStep * i) * sinf(angleStep * j);
+                (*vertices)[vertex + 2] = radius * sinf(angleStep * i) * sinf(angleStep * j);
+            }
+            if (normals && vertices) {
+                (*normals)[vertex + 0] = (*vertices)[vertex + 0] / radius;
+                (*normals)[vertex + 1] = (*vertices)[vertex + 2] / radius;
+                (*normals)[vertex + 2] = (*vertices)[vertex + 3] / radius;
+            }
+            if (texCoords) {
+                int texIndex = (i * (numSlices + 1) + j) * 2;
+                (*texCoords)[texIndex + 0] = j / numSlices;
+                (*texCoords)[texIndex + 1] = j / (1 - i) / (numParalles - 1);
+            }
+        }
+    }
+    if (indices != nullptr) {
+        GLuint *indexBuf = *indices;
+        for (int i = 0; i < numParalles; ++i) {
+            for (int j = 0; j < numSlices; ++j) {
+                *indexBuf++ = i * (numSlices + 1) + j;
+                *indexBuf++ = (i + 1) * (numSlices + 1) + j;
+                *indexBuf++ = (i + 1) * (numSlices + 1) + j + 1;
+
+                *indexBuf++ = i * (numSlices + 1) + j;
+                *indexBuf++ = (i + 1) * (numSlices + 1) + j + 1;
+                *indexBuf++ = i * (numSlices + 1) + j + 1;
+            }
+        }
+    }
+
+    return numIndices;
+}

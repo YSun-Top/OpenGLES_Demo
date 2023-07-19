@@ -47,6 +47,18 @@ public:
     void setViewPortAndUseProgram(GLint width,GLint height,GLbitfield mask);
 
     /**
+     * 生成立方体的顶点数据，并分配内存，最后将结果储存在数组中并为 TRIANGLE_STRIP 生成索引列表
+     * @param numSlices 立方体切片的数量
+     * @param radius    半径
+     * @param vertices 返回的顶点数组
+     * @param normals   返回的法线数组
+     * @param texCoords 返回的纹理数组
+     * @param indices 索引数据
+     * @return
+     */
+    int genSphere(int numSlices,float radius,GLfloat **vertices,GLfloat **normals,GLfloat **texCoords,GLuint **indices);
+
+    /**
      * 将顶点数据和缓冲区对象绑定
      * @param type 类型，比如GL_ARRAY_BUFFER、GL_ELEMENT_ARRAY_BUFFER
      * @param vboIDS 顶点缓冲区对象

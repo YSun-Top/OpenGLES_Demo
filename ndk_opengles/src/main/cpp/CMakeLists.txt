@@ -17,7 +17,6 @@ add_library(
         old/Instancing.c
         old/MapBuffers.c
         old/MipMap2D.c
-        old/Simple_Texture2D.c
         old/Simple_TextureCubemap.c
         old/Simple_VertexShader.c
         old/TextureWrap.c
@@ -28,6 +27,7 @@ add_library(
         Triangle.cpp
         Triangle_VBO.cpp
         Texture2D.cpp
+        TextureCubemap.cpp
 
         test.c
         Main.cpp
