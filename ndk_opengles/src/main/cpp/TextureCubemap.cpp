@@ -7,6 +7,7 @@
 
 #ifdef _TextureCubemap
 
+#include <cstdlib>
 #include "EGLManager.h"
 #include "ShaderManager.h"
 
@@ -29,20 +30,20 @@ GLuint *indices;
  */
 GLuint createTextureCubemap() {
     GLuint textureID;
-    //立方体有6个面
-    GLubyte cubePixels[6 * 3] = {
+    //立方体有6个面,每个面一个颜色
+    GLubyte cubePixels[6][3] = {
             // Face 0 - Red
-            255, 0, 0,
+            {255, 0,   0},
             // Face 1 - Green,
-            0, 255, 0,
+            {0,   255, 0},
             // Face 2 - Blue
-            0, 0, 255,
+            {0,   0,   255},
             // Face 3 - Yellow
-            255, 255, 0,
+            {255, 255, 0},
             // Face 4 - Purple
-            255, 0, 255,
+            {255, 0,   255},
             // Face 5 - White
-            0, 0, 0
+            {0,   0,   0}
     };
     //创建一个空的纹理变量
     glGenTextures(1, &textureID);
@@ -51,15 +52,15 @@ GLuint createTextureCubemap() {
     //加载纹理
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB, 1, 1, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, &cubePixels[0]);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB, 1, 1, 0,
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB, 1, 1, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, &cubePixels[1]);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB, 1, 1, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, &cubePixels[2]);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB, 1, 1, 0,
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB, 1, 1, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, &cubePixels[3]);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB, 1, 1, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, &cubePixels[4]);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB, 1, 1, 0,
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB, 1, 1, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, &cubePixels[5]);
     //设置纹理过滤类型
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -68,10 +69,12 @@ GLuint createTextureCubemap() {
 }
 
 void onDraw() {
+    glViewport(0, 0, eglManager->width, eglManager->height);
+    // 清除颜色缓冲区
+    glClear(GL_COLOR_BUFFER_BIT);
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
-    shaderManager->setViewPortAndUseProgram(eglManager->width, eglManager->height,
-                                            GL_COLOR_BUFFER_BIT);
+    glUseProgram(shaderManager->programObject);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, normals);
@@ -85,8 +88,8 @@ void onDraw() {
 
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices);
 
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
+//    glDisableVertexAttribArray(0);
+//    glDisableVertexAttribArray(1);
 }
 
 void onShutDown() {
@@ -94,7 +97,7 @@ void onShutDown() {
     glDeleteProgram(shaderManager->programObject);
     delete vertices;
     delete normals;
-    delete indices;
+//    delete indices;
 }
 
 int esMain() {

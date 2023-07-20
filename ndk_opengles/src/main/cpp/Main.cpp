@@ -44,9 +44,9 @@ void onAPPCallback(struct android_app *app, int32_t cmd) {
             if (shaderManager->shutDownFunc != nullptr) {
                 shaderManager->shutDownFunc();
             }
-            delete &eglManager;
-            delete &shaderManager;
-            delete &mainApp;
+            delete eglManager;
+            delete shaderManager;
+            delete mainApp;
             //ANativeWindow即将被终止，在调用android_app_exec_cmd之后将被设为 null
 //            delete &engine->android_app_data->savedState;
 //            delete engine;
@@ -104,7 +104,7 @@ void android_main(struct android_app *app) {
         if (eglManager->eglWindowType == nullptr)continue;
         if (shaderManager->updateFunc != nullptr) {
             float curTime = getCurrentTime();
-            shaderManager->updateFunc(curTime - lastTime);
+//            shaderManager->updateFunc(curTime - lastTime);
             lastTime = curTime;
         }
         if (shaderManager->drawFunc != nullptr) {

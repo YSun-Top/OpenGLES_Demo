@@ -44,7 +44,7 @@ public:
      */
     int init(const char *vShaderStr, const char *fShaderStr);
 
-    void setViewPortAndUseProgram(GLint width,GLint height,GLbitfield mask);
+    void setViewPortAndUseProgram(GLint width, GLint height, GLbitfield mask);
 
     /**
      * 生成立方体的顶点数据，并分配内存，最后将结果储存在数组中并为 TRIANGLE_STRIP 生成索引列表
@@ -56,7 +56,8 @@ public:
      * @param indices 索引数据
      * @return
      */
-    int genSphere(int numSlices,float radius,GLfloat **vertices,GLfloat **normals,GLfloat **texCoords,GLuint **indices);
+    int genSphere(int numSlices, float radius, GLfloat **vertices, GLfloat **normals,
+                  GLfloat **texCoords, GLuint **indices);
 
     /**
      * 将顶点数据和缓冲区对象绑定
@@ -66,9 +67,9 @@ public:
      * @param data 顶点数据
      */
     template<typename T>
-    void bindVBOBuffer(GLenum type, GLuint vboIDS, uint size, T data){
-        glBindBuffer(type,vboIDS);
-        glBufferData(type,size,data,GL_STATIC_DRAW);
+    void bindVBOBuffer(GLenum type, GLuint vboIDS, uint size, T data) {
+        glBindBuffer(type, vboIDS);
+        glBufferData(type, size, data, GL_STATIC_DRAW);
     }
 };
 

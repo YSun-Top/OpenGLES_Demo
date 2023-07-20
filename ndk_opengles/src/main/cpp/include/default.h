@@ -9,5 +9,6 @@
 //要跑哪个文件就定义对应的宏
 //#define Simple_TextureCubemap
 #define _TextureCubemap "_TextureCubemap"
+//#define _Texture2D "_Texture2D"
 
 #endif //LEARNINGPROJECT_DEFAULT_H
