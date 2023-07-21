@@ -24,6 +24,7 @@ public:
 
     //采样器位置
     GLint samplerLoc;
+    GLint mvpLoc;
     //分别在x和y偏移多少值
     GLint offset_X_Value;
     GLint offset_Y_Value;

@@ -17,17 +17,17 @@ add_library(
         old/Instancing.c
         old/MapBuffers.c
         old/MipMap2D.c
-        old/Simple_TextureCubemap.c
-        old/Simple_VertexShader.c
         old/TextureWrap.c
 
         EGLManager.cpp
         ShaderManager.cpp
+        TransformUtils.cpp
 
         Triangle.cpp
         Triangle_VBO.cpp
         Texture2D.cpp
         TextureCubemap.cpp
+        TextureVertexShader.cpp
 
         test.c
         Main.cpp

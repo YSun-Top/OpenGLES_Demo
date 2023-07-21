@@ -104,7 +104,7 @@ void android_main(struct android_app *app) {
         if (eglManager->eglWindowType == nullptr)continue;
         if (shaderManager->updateFunc != nullptr) {
             float curTime = getCurrentTime();
-//            shaderManager->updateFunc(curTime - lastTime);
+            shaderManager->updateFunc(curTime - lastTime);
             lastTime = curTime;
         }
         if (shaderManager->drawFunc != nullptr) {
