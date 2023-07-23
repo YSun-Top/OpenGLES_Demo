@@ -16,26 +16,25 @@ extern EGLManager *eglManager;
 extern ShaderManager *shaderManager;
 TransformUtils transformUtils;
 
-int numIndices;
+const int numIndices = 36;
+const int numVertices = 24;
+const GLfloat cubeColor[]={1.0f, 1.0f, 0.0f, 1.0f};
+
 //顶点数组
 GLfloat *vertices;
-//索引
+//渲染立方体所需的索引数量
 GLuint *indices;
-GLfloat angle = 45.0f;
-//GLfloat mvpMatrix[4][5];
-ESMatrix mvpMatrix;
+GLfloat angle = 0.0f;
+Matrix mvpMatrix;
 
 /**
  * 生成立方体纹理顶点
- * @param numSlices 切片数量
- * @param radius 半径
+ * @param scale 立方体大小，使用1.0作为单位立方体
  * @return
  */
-int genCube(float scale) {
+void genCube(float scale) {
     int i;
-    int numVertices = 24;
-    int numIndices_ = 36;
-
+    // 因为立方体有6个面，所以需要24个顶点数据
     GLfloat cubeVerts[] = {
             -0.5f, -0.5f, -0.5f,
             -0.5f, -0.5f, 0.5f,
@@ -63,7 +62,7 @@ int genCube(float scale) {
             0.5f, 0.5f, -0.5f,
     };
 
-    // Allocate memory for buffers
+//    std::push_heap(vertices.begin(), vertices.end(),cubeVerts);
     vertices = new GLfloat[sizeof(GLfloat) * 3 * numVertices];
     std::memcpy(vertices, cubeVerts, sizeof(cubeVerts));
 
@@ -86,10 +85,8 @@ int genCube(float scale) {
             20, 23, 22,
             20, 22, 21
     };
-    indices = new GLuint[sizeof(GLuint) * numIndices_];
+    indices = new GLuint[sizeof(GLuint) * numIndices];
     std::memcpy(indices, cubeIndices, sizeof(cubeIndices));
-
-    return numIndices_;
 }
 
 void onDraw() {
@@ -99,9 +96,10 @@ void onDraw() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), vertices);
     glEnableVertexAttribArray(0);
 
-    glVertexAttrib4f(1, 1.0f, 0.0f, 0.0f, 1.0f);
+    //立方体颜色
+    glVertexAttrib4fv(1,cubeColor);
 
-    glUniformMatrix4fv(shaderManager->mvpLoc, 1, GL_FALSE, &mvpMatrix.m[0][0]);
+    glUniformMatrix4fv(shaderManager->mvpLoc, 1, GL_FALSE, &mvpMatrix[0][0]);
 
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices);
 
@@ -109,39 +107,22 @@ void onDraw() {
 }
 
 void onUpdate(float time) {
-    ESMatrix perspective;
-    ESMatrix modelview;
-
-    angle += time * 40.0f;
+    angle += time * 20.0f;
     if (angle >= 360.0f)angle -= 360.0f;
     //计算窗口宽高比
     float aspect = (GLfloat) eglManager->width / (GLfloat) eglManager->height;
-//    Matrix perspective, modelView;
-//    transformUtils.matrixLoadIdentity(&perspective);
-//    transformUtils.perspective(&perspective, 60.0f, aspect, 1.0f, 20.0f);
-//
-//    transformUtils.matrixLoadIdentity(&modelView);
-//    transformUtils.translate(&modelView, 0.0, 0.0, -2.0);
-//    transformUtils.rotate(&modelView, angle, 1, 0, 1);
-//    transformUtils.matrixMultiply((Matrix *) &mvpMatrix, modelView, perspective);
-
-
-    // Generate a perspective matrix with a 60 degree FOV
-    transformUtils.matrixLoadIdentity(&perspective);
-    transformUtils.perspective(&perspective, 60.0f, aspect, 1.0f, 20.0f);
-
-    // Generate a model view matrix to rotate/translate the cube
-    transformUtils.matrixLoadIdentity(&modelview);
-
-    // Translate away from the viewer
-    transformUtils.translate(&modelview, 0.0, 0.0, -2.0);
-
-    // Rotate the cube
-    transformUtils.rotate(&modelview, angle, 1.0, 0.0, 1.0);
-
-    // Compute the final MVP by multiplying the
-    // modevleiw and perspective matrices together
-    transformUtils.matrixMultiply(&mvpMatrix, &modelview, &perspective);
+    Matrix perspective, modelView;
+    //生成具有60° FOV的透视矩阵
+    transformUtils.matrixLoadIdentity(perspective);
+    transformUtils.perspective(perspective, 60.0f, aspect, 1.0f, 20.0f);
+    //生成模型视图以旋转平移立方体
+    transformUtils.matrixLoadIdentity(modelView);
+    //远离窗口
+    transformUtils.translate(modelView, 0.0, 0.0, -3.0);
+    //旋转立方体
+    transformUtils.rotate(modelView, angle, 1, 1, 1);
+    //将模型矩阵和透视矩阵相乘得到最终的MVP
+    transformUtils.matrixMultiply(mvpMatrix, modelView, perspective);
 }
 
 void onShutDown() {
@@ -182,7 +163,7 @@ int esMain() {
     //获取统一变量位置
     shaderManager->mvpLoc = glGetUniformLocation(shaderManager->programObject, "u_mvpMatrix");
 
-    numIndices = genCube(1.0f);
+    genCube(0.5f);
 
     shaderManager->drawFunc = onDraw;
     shaderManager->updateFunc = onUpdate;
