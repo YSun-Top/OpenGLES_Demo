@@ -7,9 +7,9 @@
 
 #include "LogUtils.h"
 //要跑哪个文件就定义对应的宏
-//#define Simple_TextureCubemap
+//#define TextureWrap
 //#define _Texture2D "_Texture2D"
 //#define _TextureCubemap "_TextureCubemap"
-#define _TextureVertexShader_ "_TextureVertexShader_"
-
+//#define _TextureVertexShader_ "_TextureVertexShader_"
+#define _Texture_2D_modes_ "_Texture_2D_modes_"
 #endif //LEARNINGPROJECT_DEFAULT_H
