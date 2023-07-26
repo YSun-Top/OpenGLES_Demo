@@ -17,22 +17,38 @@ using std::initializer_list;
 using std::string;
 
 template<typename T>
-void LogD(const string& tag, const string& msg, initializer_list<T> args = {}){
+void LogD(const string &tag, const string &msg, initializer_list<T> args = {}) {
+    __android_log_print(ANDROID_LOG_DEBUG, tag.c_str(), msg.c_str(), args);
+}
+template<typename T>
+void LogD(const string &tag, const string &msg, T args) {
     __android_log_print(ANDROID_LOG_DEBUG, tag.c_str(), msg.c_str(), args);
 }
 
 template<typename T>
-void LogW(const string& tag, const string& msg, initializer_list<T> args = {}){
+void LogW(const string &tag, const string &msg, initializer_list<T> args = {}) {
+    __android_log_print(ANDROID_LOG_WARN, tag.c_str(), msg.c_str(), args);
+}
+template<typename T>
+void LogW(const string &tag, const string &msg, T args) {
     __android_log_print(ANDROID_LOG_WARN, tag.c_str(), msg.c_str(), args);
 }
 
 template<typename T>
-void LogI(const string& tag, const string& msg, initializer_list<T> args = {}){
+void LogI(const string &tag, const string &msg, initializer_list<T> args = {}) {
+    __android_log_print(ANDROID_LOG_INFO, tag.c_str(), msg.c_str(), args);
+}
+template<typename T>
+void LogI(const string &tag, const string &msg, T args) {
     __android_log_print(ANDROID_LOG_INFO, tag.c_str(), msg.c_str(), args);
 }
 
 template<typename T>
-void LogE(const string& tag, const string& msg, initializer_list<T> args = {}){
+void LogE(const string &tag, const string &msg, initializer_list<T> args = {}) {
+    __android_log_print(ANDROID_LOG_ERROR, tag.c_str(), msg.c_str(), args);
+}
+template<typename T>
+void LogE(const string &tag, const string &msg, T args) {
     __android_log_print(ANDROID_LOG_ERROR, tag.c_str(), msg.c_str(), args);
 }
 

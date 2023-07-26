@@ -22,7 +22,7 @@ GLuint ShaderManager::loadShader(GLenum type, const char *shaderCode) {
     GLint infoLen = 0;
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
     if (infoLen > 1) {
-        char *log = new char[infoLen];
+        char *log = new char[infoLen * sizeof(char)];
         glGetShaderInfoLog(shader, infoLen, nullptr, log);
         LogE<char>("Error compiling shader:\n%s\n", log);
         delete[] log;

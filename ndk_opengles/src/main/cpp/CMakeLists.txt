@@ -28,6 +28,7 @@ add_library(
         TextureCubemap.cpp
         TextureVertexShader.cpp
         Texture_2D_modes.cpp
+        Texture_2D_mipmap.cpp
 
         test.c
         Main.cpp

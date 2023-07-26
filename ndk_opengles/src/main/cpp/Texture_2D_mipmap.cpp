@@ -1,23 +1,22 @@
 //
-// Created by Silen on 2023/7/25.
-// 演示2D纹理不同模式的纹理环绕方式
-// 纹理坐标范围通常是（0,0）到（1,1）。
-// 有四种不同的环绕方式：
-// 1. GL_REPEAT——对纹理的默认行为。重复纹理图像。
-// 2. GL_MIRRORED_REPEAT——和GL_REPEAT一样，但每次重复图片是镜像放置的。
-// 3. GL_CLAMP_TO_EDGE——纹理坐标会被约束在0到1之间，超出的部分会重复纹理坐标的边缘，产生一种边缘被拉伸的效果。
-// 4. GL_CLAMP_TO_BORDER——超出的坐标为用户指定的边缘颜色。
-//
+// Created by Voidcom on 2023/7/26.
+// 生成Mipmap贴图链，并使用mipmap贴图链进行渲染
 
 #include "include/default.h"
 
-#ifdef _Texture_2D_modes_
+#ifdef _Texture_2D_mipmap_
 
 #include "EGLManager.h"
 #include "ShaderManager.h"
+#include "TransformUtils.h"
 
 extern EGLManager *eglManager;
 extern ShaderManager *shaderManager;
+
+struct Image {
+    GLubyte *preImage= nullptr;
+    GLubyte *newImage= nullptr;
+};
 
 /**
  * 生成 RGB8 的棋盘图形
@@ -46,15 +45,52 @@ GLubyte *genCheckImage(int w, int h, int size) {
     return pixels;
 }
 
-/**
- * 创建棋盘2D纹理
- * @return
- */
-GLuint createTexture2D() {
+GLboolean genMipMap2D(Image *image, int w, int h, int *dstWidth,
+                      int *dstHeight) {
+    int texelSize = 3;
+    *dstWidth = w / 2;
+    *dstHeight = h / 2;
+    if (*dstWidth <= 0)*dstWidth = 1;
+    if (*dstHeight <= 0)*dstHeight = 1;
+
+    if (image->newImage== nullptr){
+        image->newImage = new GLubyte[sizeof(GLubyte) * texelSize * (*dstWidth) * (*dstHeight)];
+    }
+
+    int srcIndex[4];
+    for (int y = 0; y < *dstHeight; ++y) {
+        for (int x = 0; x < *dstWidth; ++x) {
+            GLubyte r, g, b;
+            r = g = b = 0;
+            //计算上一张图像中 2x2 像素网格的偏移量以执行盒式过滤器
+            srcIndex[0] = (y * 2 * w + x * 2) * texelSize;
+            srcIndex[1] = (y * 2 * w + x * 2 + 1) * texelSize;
+            srcIndex[2] = ((y * 2 + 1) * w + x * 2) * texelSize;
+            srcIndex[3] = ((y * 2 + 1) * w + x * 2 + 1) * texelSize;
+
+            //对所有像素求和
+            for (int i: srcIndex) {
+                r += image->preImage[i];
+                g += image->preImage[i] + 1;
+                b += image->preImage[i] + 2;
+            }
+            //计算平均结果
+            r /= 4;
+            g /= 4;
+            b /= 4;
+            image->newImage[(y * (*dstWidth) + x) * texelSize] = r;
+            image->newImage[(y * (*dstWidth) + x) * texelSize + 1] = g;
+            image->newImage[(y * (*dstWidth) + x) * texelSize + 2] = b;
+        }
+    }
+    return GL_TRUE;
+}
+
+GLuint createMipMappedTexture2d() {
     GLuint textureID;
     int width = 256, height = 256;
     //生成棋盘的颜色数组
-    GLubyte *pixels = genCheckImage(width, height, 64);
+    GLubyte *pixels = genCheckImage(width, height, 8);
     //创建一个空的纹理变量
     glGenTextures(1, &textureID);
     //绑定纹理类型
@@ -62,6 +98,26 @@ GLuint createTexture2D() {
     //加载纹理
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height,
                  0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+    int level = 1;
+    Image image;
+    image.preImage = &pixels[0];
+    while (width > 1 && height > 1) {
+        int newWidth, newHeight;
+        genMipMap2D(&image, width, height, &newWidth, &newHeight);
+        glTexImage2D(GL_TEXTURE_2D, level, GL_RGB, newWidth, newHeight,
+                     0, GL_RGB, GL_UNSIGNED_BYTE, image.newImage);
+//        delete image.preImage;
+        // 为下一次迭代设置对比图像
+        image.preImage = image.newImage;
+        level++;
+        // 宽度和高度的一半
+        width = newWidth;
+        height = newHeight;
+    }
+    delete image.preImage;
+    delete image.newImage;
+
     //设置纹理过滤类型
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -73,19 +129,21 @@ GLuint createTexture2D() {
  * 绘制棋盘，根据不同的纹理环绕模式，呈现不同的边缘效果。
  */
 void onDraw() {
+    //顶点和纹理坐标，其中position的第四个值可以理解为深度值，就是与摄像机的距离。
+    //如果需要图像变成没有深度效果的矩形，将值设置为1.0f
     GLfloat vVertices[] = {
-            -0.3f, 0.3f, 0.0f, 1.0f,  // Position 0
-            -1.0f, -1.0f,              // TexCoord 0
-            -0.3f, -0.3f, 0.0f, 1.0f, // Position 1
-            -1.0f, 2.0f,              // TexCoord 1
-            0.3f, -0.3f, 0.0f, 1.0f, // Position 2
-            2.0f, 2.0f,              // TexCoord 2
-            0.3f, 0.3f, 0.0f, 1.0f,  // Position 3
-            2.0f, -1.0f               // TexCoord 3
+            -0.5f, 0.5f, 0.0f, 1.5f,  // Position 0
+            0.0f, 0.0f,              // TexCoord 0
+            -0.5f, -0.5f, 0.0f, 0.75f, // Position 1
+            0.0f, 1.0f,              // TexCoord 1
+            0.5f, -0.5f, 0.0f, 0.75f, // Position 2
+            1.0f, 1.0f,              // TexCoord 2
+            0.5f, 0.5f, 0.0f, 1.5f,  // Position 3
+            1.0f, 0.0f               // TexCoord 3
     };
     GLushort indices[] = {0, 1, 2, 0, 2, 3};
     shaderManager->setViewPortAndUseProgram(eglManager->width, eglManager->height,
-                                            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                                            GL_COLOR_BUFFER_BIT);
 
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), vVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), &vVertices[4]);
@@ -97,24 +155,16 @@ void onDraw() {
     glBindTexture(GL_TEXTURE_2D, shaderManager->textureID);
 
     glUniform1i(shaderManager->samplerLoc, 0);
-    glUniform1f(shaderManager->offset_Y_Value, 0.0f);
+//    glUniform1f(shaderManager->offset_Y_Value, 0.0f);
 
-    //默认行为，对边缘执行重复纹理图形的策略
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glUniform1f(shaderManager->offset_X_Value, -0.7f);
+    //GL_NEAREST:直接去原始纹理限定区域最接近的一个像素信息。
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glUniform1f(shaderManager->offset_X_Value, -0.55f);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
 
-    //纹理坐标会被约束在0到1之间，超出的部分会重复纹理坐标的边缘，产生一种边缘被拉伸的效果。
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glUniform1f(shaderManager->offset_X_Value, 0.0f);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
-
-    //和GL_REPEAT一样，但每次重复图片是镜像放置的
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glUniform1f(shaderManager->offset_X_Value, 0.7f);
+    //选择两张与映射图片大小最接近的mipmap层，然后从这两个mipmap层中，分别取四个最接近的像素的信息，分别计算加权平均值，然后根据这两个加权平均值，再计算出来一个加权平均值，作为映射点的信息
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glUniform1f(shaderManager->offset_X_Value, 0.55f);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
 
     glDisableVertexAttribArray(0);
@@ -123,13 +173,11 @@ void onDraw() {
 
 void onShutDown() {
     glDeleteProgram(shaderManager->programObject);
-//    delete vertices;
-//    delete indices;
 }
 
 int esMain() {
     if (!eglManager->esCreateWindow(eglManager->ES_WINDOW_RGB)) {
-        LogE<char>(_Texture_2D_modes_, "EGL初始化失败");
+        LogE<char>(_Texture_2D_mipmap_, "EGL初始化失败");
         return false;
     }
     //顶点着色器
@@ -165,7 +213,7 @@ int esMain() {
     shaderManager->offset_Y_Value = glGetUniformLocation(shaderManager->programObject,
                                                          "u_offset_y");
     shaderManager->samplerLoc = glGetUniformLocation(shaderManager->programObject, "s_texture");
-    shaderManager->textureID = createTexture2D();
+    shaderManager->textureID = createMipMappedTexture2d();
 
     shaderManager->drawFunc = onDraw;
     shaderManager->shutDownFunc = onShutDown;
