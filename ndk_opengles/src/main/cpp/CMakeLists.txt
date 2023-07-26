@@ -17,7 +17,6 @@ add_library(
         old/Instancing.c
         old/MapBuffers.c
         old/MipMap2D.c
-        old/TextureWrap.c
 
         EGLManager.cpp
         ShaderManager.cpp

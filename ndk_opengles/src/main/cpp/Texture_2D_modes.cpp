@@ -7,6 +7,7 @@
 // 2. GL_MIRRORED_REPEAT——和GL_REPEAT一样，但每次重复图片是镜像放置的。
 // 3. GL_CLAMP_TO_EDGE——纹理坐标会被约束在0到1之间，超出的部分会重复纹理坐标的边缘，产生一种边缘被拉伸的效果。
 // 4. GL_CLAMP_TO_BORDER——超出的坐标为用户指定的边缘颜色。
+//
 
 #include "include/default.h"
 
@@ -22,16 +23,15 @@ extern ShaderManager *shaderManager;
 
 /**
  * 生成 RGB8 的棋盘图形
- * @param w 宽
- * @param h 高
- * @param size 大小
+ * @param w 宽，棋盘宽度
+ * @param h 高，棋盘高度
+ * @param size 棋盘格子的大小
  * @return
  */
 GLubyte *genCheckImage(int w, int h, int size) {
     auto *pixels = new GLubyte[w * h * 3];
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
-
             GLubyte rColor, bColor;
             if (x / size % 2 == 0) {
                 rColor = (y / size % 2) * 255;
@@ -49,19 +49,14 @@ GLubyte *genCheckImage(int w, int h, int size) {
 }
 
 /**
- * 创建2D纹理
- * 纹理坐标原点(0,0)默认是在右下角，因此生成的2x2纹理为：
- * (0,1)blue | (1,1)yellow
- * ----------------------
- * (0,0)red  | (1,0) green
- *
+ * 创建棋盘2D纹理
  * @return
  */
 GLuint createTexture2D() {
     GLuint textureID;
     int width = 256, height = 256;
+    //生成棋盘的颜色数组
     GLubyte *pixels = genCheckImage(width, height, 64);
-
     //创建一个空的纹理变量
     glGenTextures(1, &textureID);
     //绑定纹理类型
@@ -70,13 +65,15 @@ GLuint createTexture2D() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height,
                  0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
     //设置纹理过滤类型
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     delete pixels;
     return textureID;
 }
 
+/**
+ * 绘制棋盘，根据不同的纹理环绕模式，呈现不同的边缘效果。
+ */
 void onDraw() {
     GLfloat vVertices[] = {
             -0.3f, 0.3f, 0.0f, 1.0f,  // Position 0
@@ -165,8 +162,10 @@ int esMain() {
             "}                                                   \n";
     if (!shaderManager->init(vShaderStr, fShaderStr))return false;
     //获取统一变量位置
-    shaderManager->offset_X_Value = glGetUniformLocation(shaderManager->programObject, "u_offset_x");
-    shaderManager->offset_Y_Value = glGetUniformLocation(shaderManager->programObject, "u_offset_y");
+    shaderManager->offset_X_Value = glGetUniformLocation(shaderManager->programObject,
+                                                         "u_offset_x");
+    shaderManager->offset_Y_Value = glGetUniformLocation(shaderManager->programObject,
+                                                         "u_offset_y");
     shaderManager->samplerLoc = glGetUniformLocation(shaderManager->programObject, "s_texture");
     shaderManager->textureID = createTexture2D();
 
