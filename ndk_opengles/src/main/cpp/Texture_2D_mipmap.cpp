@@ -107,7 +107,6 @@ GLuint createMipMappedTexture2d() {
         genMipMap2D(&image, width, height, &newWidth, &newHeight);
         glTexImage2D(GL_TEXTURE_2D, level, GL_RGB, newWidth, newHeight,
                      0, GL_RGB, GL_UNSIGNED_BYTE, image.newImage);
-//        delete image.preImage;
         // 为下一次迭代设置对比图像
         image.preImage = image.newImage;
         level++;

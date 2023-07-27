@@ -15,7 +15,6 @@ add_library(
         ndk_OpenGLES
         SHARED
         old/Instancing.c
-        old/MapBuffers.c
         old/MipMap2D.c
 
         EGLManager.cpp
@@ -24,6 +23,7 @@ add_library(
 
         Triangle.cpp
         Triangle_VBO.cpp
+        Triangle_MapBuffer.cpp
         Texture2D.cpp
         TextureCubemap.cpp
         TextureVertexShader.cpp
