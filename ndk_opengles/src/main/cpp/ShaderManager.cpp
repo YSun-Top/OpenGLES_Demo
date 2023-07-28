@@ -81,3 +81,118 @@ void ShaderManager::setViewPortAndUseProgram(GLint width, GLint height, GLbitfie
     glClear(mask);
     glUseProgram(programObject);
 }
+
+void ShaderManager::genCube(float scale, CubeData *data) {
+    int numVertices = 24;
+    numIndices = 36;
+    GLfloat cubeVerts[] = {
+            -0.5f, -0.5f, -0.5f,
+            -0.5f, -0.5f, 0.5f,
+            0.5f, -0.5f, 0.5f,
+            0.5f, -0.5f, -0.5f,
+            -0.5f, 0.5f, -0.5f,
+            -0.5f, 0.5f, 0.5f,
+            0.5f, 0.5f, 0.5f,
+            0.5f, 0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+            -0.5f, 0.5f, -0.5f,
+            0.5f, 0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            -0.5f, -0.5f, 0.5f,
+            -0.5f, 0.5f, 0.5f,
+            0.5f, 0.5f, 0.5f,
+            0.5f, -0.5f, 0.5f,
+            -0.5f, -0.5f, -0.5f,
+            -0.5f, -0.5f, 0.5f,
+            -0.5f, 0.5f, 0.5f,
+            -0.5f, 0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f, 0.5f,
+            0.5f, 0.5f, 0.5f,
+            0.5f, 0.5f, -0.5f,
+    };
+
+
+    GLfloat cubeNormals[] = {
+            0.0f, -1.0f, 0.0f,
+            0.0f, -1.0f, 0.0f,
+            0.0f, -1.0f, 0.0f,
+            0.0f, -1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, -1.0f,
+            0.0f, 0.0f, -1.0f,
+            0.0f, 0.0f, -1.0f,
+            0.0f, 0.0f, -1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            -1.0f, 0.0f, 0.0f,
+            -1.0f, 0.0f, 0.0f,
+            -1.0f, 0.0f, 0.0f,
+            -1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+    };
+
+    GLfloat cubeTex[] = {
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f,
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f,
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f,
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f,
+    };
+
+    data->vertices = new GLfloat[sizeof(GLfloat) * 3 * numVertices];
+    memcpy(data->vertices, cubeVerts, sizeof(cubeVerts));
+    for (int i = 0; i < numVertices * 3; ++i) {
+        data->vertices[i] *= scale;
+    }
+
+    data->normals = new GLfloat[sizeof(GLfloat) * 3 * numVertices];
+    memcpy(data->normals, cubeNormals, sizeof(cubeNormals));
+
+    data->texCoords = new GLfloat[sizeof(GLfloat) * 2 * numVertices];
+    memcpy(data->texCoords, cubeNormals, sizeof(cubeTex));
+
+    GLuint cubeIndices[] = {
+            0, 2, 1,
+            0, 3, 2,
+            4, 5, 6,
+            4, 6, 7,
+            8, 9, 10,
+            8, 10, 11,
+            12, 15, 14,
+            12, 14, 13,
+            16, 17, 18,
+            16, 18, 19,
+            20, 23, 22,
+            20, 22, 21
+    };
+    data->indices = new GLfloat[sizeof(GLuint) * numVertices];
+    memcpy(data->indices, cubeIndices, sizeof(cubeIndices));
+}

@@ -17,9 +17,6 @@ const float PI = 3.1415926535897932384626433832795f;
 //typedef vector<vector<float>> Matrix;
 
 typedef GLfloat Matrix[4][4];
-typedef struct {
-    GLfloat m[4][4];
-} ESMatrix;
 
 
 class TransformUtils {

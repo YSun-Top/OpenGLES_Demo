@@ -52,6 +52,11 @@ public:
      * @return
      */
     GLint GetContextRenderableType() const;
+
+    /**
+     * 返回窗口的纵横比
+     */
+    float getWindowsAspect() const;
 };
 
 

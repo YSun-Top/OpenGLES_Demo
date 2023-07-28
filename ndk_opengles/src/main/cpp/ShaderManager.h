@@ -8,6 +8,13 @@
 #include <GLES3/gl3.h>
 #include "LogUtils.h"
 
+struct CubeData {
+    GLfloat *vertices = nullptr;
+    GLfloat *normals = nullptr;
+    GLfloat *texCoords = nullptr;
+    GLfloat *indices = nullptr;
+};
+
 class ShaderManager {
 public:
     GLuint programObject;
@@ -21,6 +28,8 @@ public:
 
     GLuint *vboIDs;
     GLuint textureID;
+    //立方体索引数量
+    int numIndices;
 
     //采样器位置
     GLint samplerLoc;
@@ -59,6 +68,8 @@ public:
      */
     int genSphere(int numSlices, float radius, GLfloat **vertices, GLfloat **normals,
                   GLfloat **texCoords, GLuint **indices);
+
+    void genCube(float scale, CubeData *data);
 
     /**
      * 将顶点数据和缓冲区对象绑定

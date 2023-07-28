@@ -76,3 +76,7 @@ GLint EGLManager::GetContextRenderableType() const {
 #endif
     return EGL_OPENGL_ES3_BIT_KHR;
 }
+
+float EGLManager::getWindowsAspect() const {
+    return (float) width / (float) height;
+}
